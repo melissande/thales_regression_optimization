@@ -24,18 +24,23 @@ print(label_train)
 data_train,label_train,data_test,label_test=minidataset.extract('../dataset_impl/patches4',0,0)#0,0
 data_provider=image_util.SimpleDataProvider(data_train, label_train, channels_in=5,channels_out=4, n_class = 1024)
 
+path="prediction41"
 ##setup & training
 net = unet.Unet(channels_in=5,channels_out=4, n_class = 1024)
 trainer = unet.Trainer(net, batch_size=4, optimizer="momentum")#10
-path = trainer.train(data_provider, "prediction21", training_iters=125, epochs=40)#51 100
-
+path = trainer.train(data_provider,path, training_iters=125, epochs=1)#51 100
+'''
 #verification
 
-#prediction = net.predict("prediction_test9", data_test) #data=testset
+prediction = net.predict(path, data_test) #data=testset
 
-#unet.error_rate(prediction, util.crop_to_shape(label_test, prediction.shape))
-
+unet.compute_pred_loss(prediction, util.crop_to_shape(label_test, prediction.shape))
+'''
 #modified through reshape
+prediction=util.to_rgb(prediction)
+
+for i in range(data_test.shape[0]):
+    util.save_image(prediction[i,:,:,:], "%s/TEST_pred_%s.jpg"%("path",i))
          
 #true_y=util.to_rgb(util.crop_to_shape(label_test, prediction.shape)) 
 #est_y=util.to_rgb(prediction)

@@ -15,7 +15,7 @@ from layers import (weight_variable, weight_variable_devonc, bias_variable,
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
-def create_conv_net(x, keep_prob, channels_in, channels_out,n_class, layers=1, features_root=8, filter_size=3, pool_size=2, summaries=True):
+def create_conv_net(x, keep_prob, channels_in, channels_out,n_class, layers=1, features_root=16, filter_size=3, pool_size=2, summaries=True):
     """
     Creates a new convolutional unet for the given parametrization.
     
@@ -258,7 +258,7 @@ class Trainer(object):
     def _get_optimizer(self, training_iters, global_step):
         if self.optimizer == "momentum":
             learning_rate = self.opt_kwargs.pop("learning_rate", 0.07)#0.2
-            decay_rate = self.opt_kwargs.pop("decay_rate", 0.95)
+            decay_rate = self.opt_kwargs.pop("decay_rate", 0.999)
             momentum = self.opt_kwargs.pop("momentum", 0.2)
             
             self.learning_rate_node = tf.train.exponential_decay(learning_rate=learning_rate, 
@@ -353,10 +353,10 @@ class Trainer(object):
             logging.info("Start optimization")
             
             avg_gradients = None
-            idx_rd_tr=np.random.randint(0,training_iters) 
+            idx_rd_tr_init=np.random.randint(0,training_iters) 
             for epoch in range(epochs):
                 total_loss = 0 
-                idx_rd_tr=epoch*training_iters+idx_rd_tr
+                idx_rd_tr=epoch*training_iters+idx_rd_tr_init
                 print(idx_rd_tr) 
                 for step in range((epoch*training_iters), ((epoch+1)*training_iters)):                    
                     batch_x, batch_y = data_provider(self.batch_size)

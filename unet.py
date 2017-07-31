@@ -258,8 +258,8 @@ class Trainer(object):
     def _get_optimizer(self, training_iters, global_step):
         if self.optimizer == "momentum":
             learning_rate = self.opt_kwargs.pop("learning_rate", 0.07)#0.2
-            decay_rate = self.opt_kwargs.pop("decay_rate", 0.95)
-            momentum = self.opt_kwargs.pop("momentum", 0.2)
+            decay_rate = self.opt_kwargs.pop("decay_rate", 0.999)
+            momentum = self.opt_kwargs.pop("momentum", 0.2)#0.2
             
             self.learning_rate_node = tf.train.exponential_decay(learning_rate=learning_rate, 
                                                         global_step=global_step, 
@@ -271,7 +271,7 @@ class Trainer(object):
                                                    **self.opt_kwargs).minimize(self.net.l2_loss, 
                                                                                 global_step=global_step)
         elif self.optimizer == "adam":
-            learning_rate = self.opt_kwargs.pop("learning_rate", 0.07)#0.001
+            learning_rate = self.opt_kwargs.pop("learning_rate", 0.0001)#0.001
             self.learning_rate_node = tf.Variable(learning_rate)
             
             optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate_node, 
@@ -408,10 +408,13 @@ class Trainer(object):
         #util.save_image(img, "%s/%s.jpg"%(self.prediction_path, name))
         
         return pred_shape
-    
+
+    def compute_pred_loss(self, prediction, label):
+        return np.mean(np.square(y_- output_map))                        
     def output_epoch_stats(self, epoch, total_loss, training_iters, lr):
         logging.info("Epoch {:}, Average loss: {:.4f}, learning rate: {:.4f}".format(epoch, (total_loss / training_iters), lr))
     
+
     def output_minibatch_stats(self, sess, summary_writer, step, batch_x, batch_y):
         # Calculate batch loss and accuracy
         summary_str, loss, predictions = sess.run([self.summary_op, 
